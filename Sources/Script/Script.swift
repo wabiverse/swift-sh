@@ -81,7 +81,7 @@ public class Script {
             try buildDirectory.mkdir(.p)
             // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
             try """
-                // swift-tools-version:5.1
+                // swift-tools-version:5.9
                 import PackageDescription
 
                 let pkg = Package(name: "\(name)")
@@ -98,9 +98,15 @@ public class Script {
                         dependencies: [\(deps.mainTargetDependencies)],
                         path: ".",
                         exclude: ["deps.json"],
-                        sources: ["main.swift"]
+                        sources: ["main.swift"],
+                        swiftSettings: [
+                            // needed for CXX interop.
+                            .interoperabilityMode(.Cxx)
+                        ]
                     )
                 ]
+
+                pkg.cxxLanguageStandard = .cxx17
 
                 #if swift(>=5) && os(macOS)
                 pkg.platforms = [

@@ -21,7 +21,7 @@ public func eject(_ script: Path, force: Bool) throws {
         try script.copy(to: sources/"main.swift")
 
         try """
-            // swift-tools-version:4.2
+            // swift-tools-version:5.9
             import PackageDescription
 
             let package = Package(name: "\(name)")
@@ -33,8 +33,18 @@ public func eject(_ script: Path, force: Bool) throws {
                 \(deps.packageLines)
             ]
             package.targets = [
-                .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: "Sources")
+                .target(
+                  name: "\(name)", 
+                  dependencies: [\(deps.mainTargetDependencies)], 
+                  path: "Sources",
+                  swiftSettings: [
+                      // needed for CXX interop.
+                      .interoperabilityMode(.Cxx)
+                  ]
+                )
             ]
+
+            package.cxxLanguageStandard = .cxx17
 
             """.write(to: tmpdir/"Package.swift")
 
